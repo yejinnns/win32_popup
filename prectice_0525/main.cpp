@@ -16,7 +16,7 @@ using namespace std;
 int popup_scr_cx;
 int popup_scr_cy;
 
-char* szSign = "홍홍길동";
+char* szSign = "홍길동";
 
 int DrawBitmapEx(HDC hdc, int x, int y, int cx, int cy, HBITMAP hBmp, BOOL bStretchBlt)
 {
@@ -34,60 +34,9 @@ int DrawBitmapEx(HDC hdc, int x, int y, int cx, int cy, HBITMAP hBmp, BOOL bStre
 	int scr_cx = GetSystemMetrics(SM_CXSCREEN);
 	int scr_cy = GetSystemMetrics(SM_CYSCREEN);
 
-	/*
-	if (bStretchBlt == FALSE)
-	{
-		BitBlt(hdc, x, y, bx < 1 ? cx : bx, by < 1 ? cy : by, hMemDC, 0, 0, SRCCOPY);
-	}
-	else
-	{
-		StretchBlt(hdc, x, y, cx < 1 ? bx : cx, cy < 1 ? by : cy, hMemDC, 0, 0, bx, by, SRCCOPY);
-	}
-	*/
+
 	SetStretchBltMode(hdc,  HALFTONE);
 	StretchBlt(hdc, x, y, popup_scr_cx, popup_scr_cy, hMemDC, 0, 0, bx, by, SRCCOPY);
-
-	SelectObject(hMemDC, hOldBmp);
-	DeleteDC(hMemDC);
-
-	return TRUE;
-}
-
-int DrawBitmapEx2(HDC hdc, int x, int y, int cx, int cy, HBITMAP hBmp, BOOL bStretchBlt)
-{
-	HBITMAP hOldBmp = NULL;
-	HDC hMemDC = NULL;
-	BITMAP bit;
-	int	bx=1, by=1;
-
-	hMemDC	= ::CreateCompatibleDC(hdc);
-	hOldBmp	= (HBITMAP)::SelectObject(hMemDC, (HGDIOBJ)hBmp);
-	GetObject(hBmp, sizeof(BITMAP),&bit);
-	bx = bit.bmWidth;
-	by = bit.bmHeight;
-
-	int scr_cx = GetSystemMetrics(SM_CXSCREEN);
-	int scr_cy = GetSystemMetrics(SM_CYSCREEN);
-
-	/*
-	if (bStretchBlt == FALSE)
-	{
-		BitBlt(hdc, x, y, bx < 1 ? cx : bx, by < 1 ? cy : by, hMemDC, 0, 0, SRCCOPY);
-	}
-	else
-	{
-		StretchBlt(hdc, x, y, cx < 1 ? bx : cx, cy < 1 ? by : cy, hMemDC, 0, 0, bx, by, SRCCOPY);
-	}
-	*/
-	SetStretchBltMode(hdc,  HALFTONE);
-	size_t strLength = strlen(szSign);
-	
-	if(strLength==8){
-		StretchBlt(hdc, scr_cx*0.15, scr_cy*0.2375, scr_cx*0.05, scr_cy*0.035, hMemDC, 0, 0, bx, by, SRCCOPY);
-	}
-	else{
-		StretchBlt(hdc, scr_cx*0.17, scr_cy*0.2375, scr_cx*0.05, scr_cy*0.035, hMemDC, 0, 0, bx, by, SRCCOPY);
-	}
 
 	SelectObject(hMemDC, hOldBmp);
 	DeleteDC(hMemDC);
@@ -227,12 +176,6 @@ HBITMAP ImageToBmp(HWND hWnd, char * FileName)
 	return Bmp;
 }
 ///////////////////////////////////////////////////////////////////////////////	
-HBITMAP g_ImgWndBg = NULL;		// 배경이미지
-HBITMAP g_ImgWndBg1 = NULL;		// 배경이미지
-HBITMAP g_ImgWndBg2 = NULL;		// 배경이미지
-RECT	g_rcImgWndCloseBtn;		// 배경이미지창 종료버튼 위치
-RECT	g_rcImgWndCloseBtn1;	// 배경이미지창 종료버튼 위치
-RECT	g_rcImgWndCloseBtn2;	// 배경이미지창 종료버튼 위치
 
 
 //2023.05.16
@@ -242,6 +185,12 @@ HBITMAP g_popupTextImg = NULL;	// 글씨 이미지
 //RECT	g_popup;				//팝업창
 int popup_x = 0;	//팝업 x
 int popup_y = 0;	//팝업 y
+
+
+//2023.08.10
+RECT g_rcName;
+RECT g_rcName2;
+
 BOOL/*LRESULT*/ CALLBACK IMGDlgPopupWndProc(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
 	POINT pt;
@@ -283,7 +232,12 @@ BOOL/*LRESULT*/ CALLBACK IMGDlgPopupWndProc(HWND hWnd, UINT iMsg, WPARAM wParam,
 		int controlId = GetDlgCtrlID((HWND)lParam);
 		if (controlId == IDC_STATIC_NAME) // Check the control's ID
 		{
+			
 			SetTextColor(hdcStatic, RGB(19, 84, 138)); // Set text color to red
+		}
+		if (controlId == IDC_STATIC_NAME2) // Check the control's ID
+		{
+			//SetTextAlign(hdcStatic, TA_CENTER);
 		}
 
 
@@ -340,8 +294,6 @@ BOOL OnIMGDlgPopupWndDialogInit(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 	}
 
 
-	//GetObject(g_hbgBitmap, sizeof bmp, &bmp);
-
 	//이미지 크기 가져오기
 	GetObject(g_ImgWndBg3, sizeof bmp, &bmp);
 	//nWidth = (int)bmp.bmWidth;
@@ -361,47 +313,25 @@ BOOL OnIMGDlgPopupWndDialogInit(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 	
 	
 	// 버튼 영역설정
-	//::SetRect(&g_rcImgWndCloseBtn3, 465-34, 0, 465, 34);	// 배경이미지창 종료버튼 위치
 	::SetRect(&g_rcImgWndCloseBtn3, popup_scr_cx*0.815, popup_scr_cy*0.84, popup_scr_cx*0.94, popup_scr_cy*0.9);
 	
-	// 이름 //2023.08.09
+	// 이름 영역 설정 //2023.08.09
+	//이름1
+	::SetRect(&g_rcName, popup_scr_cx*0.202,popup_scr_cy*0.234,popup_scr_cx*0.202*1.3,popup_scr_cy*0.234*1.2);
+	//이름2
+	::SetRect(&g_rcName2, popup_scr_cx*0.838,popup_scr_cy*0.793,popup_scr_cx*0.838*1.08,popup_scr_cy*0.793*1.2);
 	
-	HWND hName = GetDlgItem(hWnd, IDC_STATIC_NAME);
-	size_t strLength = strlen(szSign);
-	if(strLength==8){
-		MoveWindow(hName, popup_scr_cx*0.204,popup_scr_cy*0.234,popup_scr_cx*0.2,popup_scr_cy*0.2, TRUE);
-	}
-	else{
-		MoveWindow(hName, popup_scr_cx*0.22,popup_scr_cy*0.234,popup_scr_cx*0.2,popup_scr_cy*0.2, TRUE); 
-	}
-	HFONT hNameFont = CreateFont(popup_scr_cx*0.021,0,0,0,FW_BOLD,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("맑은 고딕"));
-	SendMessage(hName, WM_SETFONT, (WPARAM)hNameFont, TRUE);
-
-
-
-	// 이름2 //2023.08.09
-	HWND hName2 = GetDlgItem(hWnd, IDC_STATIC_NAME2);
-
-	if(strLength==8){
-		MoveWindow(hName2, popup_scr_cx*0.838,popup_scr_cy*0.793,popup_scr_cx*0.2,popup_scr_cy*0.2, TRUE); 
-	}
-	else{
-		MoveWindow(hName2, popup_scr_cx*0.858,popup_scr_cy*0.793,popup_scr_cx*0.2,popup_scr_cy*0.2, TRUE); 
-	}
-	HFONT hNameFont2 = CreateFont(popup_scr_cx*0.017,0,0,0,0,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("새굴림"));
-	SendMessage(hName2, WM_SETFONT, (WPARAM)hNameFont2, TRUE);
-
 
 	// 서명
+	
 	HWND hSign = GetDlgItem(hWnd, IDC_STATIC_SIGN);
 	MoveWindow(hSign, popup_scr_cx*0.915,popup_scr_cy*0.795,popup_scr_cx*0.2,popup_scr_cy*0.2, TRUE); //수정
 	HFONT hSignFont = CreateFont(popup_scr_cx*0.02,0,0,0,0,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("휴먼편지체"));
 	SendMessage(hSign, WM_SETFONT, (WPARAM)hSignFont, TRUE);
+
+	//::SetRect(&g_rcSign, popup_scr_cx*0.915,popup_scr_cy*0.795,popup_scr_cx*0.915*1.08,popup_scr_cy*0.795*1.2);
 	
-	// 배경 가릴 비트맵
-	//g_BackImg = CreateBitmap(800,800,1,32,NULL);
-  
-	
+
 	return FALSE;
 }
 
@@ -421,29 +351,45 @@ BOOL OnIMGDlgPopupWndPaint(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	HDC hdc;
 	HBITMAP hOldbmp;
 	RECT rc;
+
+	//2023.08.11
+	HFONT hNameFont, hNameFont2, hSignFont, hOldFont;
+
+	hOldFont = (HFONT)SelectObject(hdc, hOldFont);
+	hNameFont = CreateFont(popup_scr_cx*0.021,0,0,0,FW_BOLD,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("맑은 고딕"));
+	hNameFont2 = CreateFont(popup_scr_cx*0.017,0,0,0,0,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("새굴림"));
+	hSignFont = CreateFont(popup_scr_cx*0.02,0,0,0,0,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("휴먼편지체"));
+
+	SetBkMode(hdc, TRANSPARENT);
 	
 	hdc = BeginPaint(hWnd, &ps);
 	GetClientRect(hWnd, &rc);
 
 
-
 	// 배경 그리기
 	if (g_ImgWndBg3){
-		//DrawBitmapEx(hdc, 0, 0, rc.right, rc.bottom, g_ImgWndBg3, FALSE);
 		DrawBitmapEx(hdc, 0, 0, 100, 100, g_ImgWndBg3, FALSE);
-		SetDlgItemText(hWnd, IDC_STATIC_NAME, szSign);
-		SetDlgItemText(hWnd, IDC_STATIC_NAME2, szSign);
-		//DrawBitmapEx(hdc, 0,0, GetSystemMetrics(SM_CXSCREEN),GetSystemMetrics(SM_CYSCREEN), g_ImgWndBg3, FALSE);
-	}
-	if (g_popupTextImg){
-
-		DrawBitmapEx2(hdc, 0, 0, 100, 100, g_popupTextImg, FALSE);
-
 	}
 	
-	//Sleep(2000);
-	//EndDialog(hWnd, IDCANCEL);
+	//이름1
+	SelectObject(hdc, hNameFont);
+	SetTextColor(hdc, RGB(19, 84, 138));
+	DrawText(hdc,szSign,-1,&g_rcName, DT_RIGHT | DT_WORDBREAK); 
+	SelectObject(hdc, hOldFont);
+
+	//이름2
+	SelectObject(hdc, hNameFont2);
+	SetTextColor(hdc, RGB(0, 0, 0));
+	DrawText(hdc,szSign,-1,&g_rcName2, DT_RIGHT | DT_WORDBREAK); 
+	SelectObject(hdc, hOldFont);
+
+	//서명
 	
+	//SelectObject(hdc, hSignFont);
+	//DrawText(hdc,szSign,-1,&g_rcSign, DT_LEFT | DT_WORDBREAK); 
+	//SelectObject(hdc, hOldFont);
+
+
 	return FALSE;
 }
 
@@ -453,7 +399,7 @@ BOOL OnIMGDlgPopupWndLButtonUp(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPara
 
 	pt.x = LOWORD(lParam);
 	pt.y = HIWORD(lParam);
-
+	
 
 	//extern char m_szID;
 	static SYSTEMTIME time;
@@ -466,9 +412,11 @@ BOOL OnIMGDlgPopupWndLButtonUp(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPara
 	{
 		if (PtInRect(&g_rcImgWndCloseBtn3, pt))
 		{
+			
 			SetDlgItemText(hWnd, IDC_STATIC_SIGN, szSign);
 			Sleep(2000);
 			EndDialog(hWnd, IDCANCEL);
+
 		}
 	}
 
@@ -493,3 +441,5 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpszCmd
 	HWND m_hWnd;
 	DialogBoxParam(hInstance, MAKEINTRESOURCE(IDD_DIALOG1), m_hWnd, IMGDlgPopupWndProc, NULL);
 }
+
+

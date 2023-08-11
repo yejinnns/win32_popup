@@ -10,3 +10,4 @@ BOOL OnIMGDlgPopupWndCommand(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 BOOL OnIMGDlgPopupWndPaint(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 BOOL OnIMGDlgPopupWndLButtonUp(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
 BOOL OnIMGDlgPopupWndDestroy(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam);
+BOOL DlgPopupSign(HWND hWnd);
