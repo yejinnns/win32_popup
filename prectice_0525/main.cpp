@@ -16,7 +16,7 @@ using namespace std;
 int popup_scr_cx;
 int popup_scr_cy;
 
-char* szSign = "홍길동";
+char* szSign = "afsddddddsfasfdasfasffsasffsaafs";
 
 int DrawBitmapEx(HDC hdc, int x, int y, int cx, int cy, HBITMAP hBmp, BOOL bStretchBlt)
 {
@@ -37,6 +37,7 @@ int DrawBitmapEx(HDC hdc, int x, int y, int cx, int cy, HBITMAP hBmp, BOOL bStre
 
 	SetStretchBltMode(hdc,  HALFTONE);
 	StretchBlt(hdc, x, y, popup_scr_cx, popup_scr_cy, hMemDC, 0, 0, bx, by, SRCCOPY);
+	
 
 	SelectObject(hMemDC, hOldBmp);
 	DeleteDC(hMemDC);
@@ -281,17 +282,6 @@ BOOL OnIMGDlgPopupWndDialogInit(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 	}
 	BITMAP bmp;
 
-	//2023.08.09
-	char szTextImgFilePath[1024] = {0,}; //2023.05.16
-	sprintf(szTextImgFilePath, "C:\\PowerGate\\Temp\\popupText.jpg");
-	if(TRUE == PathFileExists(szTextImgFilePath))
-	{
-		g_popupTextImg = ImageToBmp(hWnd, szTextImgFilePath);	// 텍스트이미지
-	}
-	else
-	{
-		EndDialog(hWnd, IDCANCEL);
-	}
 
 
 	//이미지 크기 가져오기
@@ -309,7 +299,7 @@ BOOL OnIMGDlgPopupWndDialogInit(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 	int monitorNum = GetSystemMetrics(SM_CMONITORS);
 
 	// 창 크기 설정
-	SetWindowPos(hWnd, HWND_TOPMOST, monitorX,monitorY,iTotalMonitorWidth, iTotalMonitorHeight, 0);
+	SetWindowPos(hWnd, HWND_TOPMOST, monitorX,monitorY,iTotalMonitorWidth/2, iTotalMonitorHeight, 0);  //x크기 절반으로 수정
 	
 	
 	// 버튼 영역설정
@@ -317,15 +307,15 @@ BOOL OnIMGDlgPopupWndDialogInit(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lPar
 	
 	// 이름 영역 설정 //2023.08.09
 	//이름1
-	::SetRect(&g_rcName, popup_scr_cx*0.202,popup_scr_cy*0.234,popup_scr_cx*0.202*1.3,popup_scr_cy*0.234*1.2);
+	::SetRect(&g_rcName, popup_scr_cx*0.1,popup_scr_cy*0.235,popup_scr_cx*0.202*1.53,popup_scr_cy*0.234*1.2);
 	//이름2
-	::SetRect(&g_rcName2, popup_scr_cx*0.838,popup_scr_cy*0.793,popup_scr_cx*0.838*1.08,popup_scr_cy*0.793*1.2);
+	::SetRect(&g_rcName2, popup_scr_cx*0.738,popup_scr_cy*0.791,popup_scr_cx*0.838*1.08,popup_scr_cy*0.793*1.2);
 	
 
 	// 서명
 	
 	HWND hSign = GetDlgItem(hWnd, IDC_STATIC_SIGN);
-	MoveWindow(hSign, popup_scr_cx*0.915,popup_scr_cy*0.795,popup_scr_cx*0.2,popup_scr_cy*0.2, TRUE); //수정
+	MoveWindow(hSign, popup_scr_cx*0.915,popup_scr_cy*0.791,popup_scr_cx*0.2,popup_scr_cy*0.2, TRUE); //수정
 	HFONT hSignFont = CreateFont(popup_scr_cx*0.02,0,0,0,0,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("휴먼편지체"));
 	SendMessage(hSign, WM_SETFONT, (WPARAM)hSignFont, TRUE);
 
@@ -351,12 +341,13 @@ BOOL OnIMGDlgPopupWndPaint(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	HDC hdc;
 	HBITMAP hOldbmp;
 	RECT rc;
-
+	char szName[50]={ 0, };
 	//2023.08.11
 	HFONT hNameFont, hNameFont2, hSignFont, hOldFont;
 
 	hOldFont = (HFONT)SelectObject(hdc, hOldFont);
-	hNameFont = CreateFont(popup_scr_cx*0.021,0,0,0,FW_BOLD,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("맑은 고딕"));
+	//hNameFont = CreateFont(popup_scr_cx*0.021,0,0,0,FW_BOLD,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("맑은 고딕"));
+	hNameFont = CreateFont(popup_scr_cx*0.022,0,0,0,0,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("맑은 고딕"));
 	hNameFont2 = CreateFont(popup_scr_cx*0.017,0,0,0,0,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("새굴림"));
 	hSignFont = CreateFont(popup_scr_cx*0.02,0,0,0,0,0,0,0,HANGEUL_CHARSET,0,0,0,VARIABLE_PITCH | FF_ROMAN,TEXT("휴먼편지체"));
 
@@ -373,13 +364,15 @@ BOOL OnIMGDlgPopupWndPaint(HWND hWnd, UINT iMsg, WPARAM wParam, LPARAM lParam)
 	
 	//이름1
 	SelectObject(hdc, hNameFont);
-	SetTextColor(hdc, RGB(19, 84, 138));
-	DrawText(hdc,szSign,-1,&g_rcName, DT_RIGHT | DT_WORDBREAK); 
+	//SetTextColor(hdc, RGB(19, 84, 138));
+	SetTextColor(hdc, RGB(40,40,40));
+	sprintf(szName, "금일은 %s", szSign);
+	DrawText(hdc,szName,-1,&g_rcName, DT_RIGHT | DT_WORDBREAK); 
 	SelectObject(hdc, hOldFont);
 
 	//이름2
 	SelectObject(hdc, hNameFont2);
-	SetTextColor(hdc, RGB(0, 0, 0));
+	//SetTextColor(hdc, RGB(0, 0, 0));
 	DrawText(hdc,szSign,-1,&g_rcName2, DT_RIGHT | DT_WORDBREAK); 
 	SelectObject(hdc, hOldFont);
 
